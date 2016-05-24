@@ -122,6 +122,7 @@ class AssinarDocumentoView(generic.FormView, generic.DetailView):
 
 class DocumentoEditar(generic.UpdateView):
     model = Documento
+    template_name = 'core/documento_assinar.html'
     fields = '__all__'
     slug_field = 'uuid_hash'
 

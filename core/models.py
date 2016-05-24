@@ -147,7 +147,7 @@ class AssinaturaBloco(models.Model):
 
 
 class Documento(models.Model):
-    uuid_hash = models.UUIDField(editable=False, unique=True, null=True)
+    uuid_hash = models.UUIDField(editable=False, unique=True, null=True, db_index=True)
 
     NAO_ASSINADO = 10
     POSSUI_ASSINATURAS_PENDENTES = 20
@@ -160,6 +160,10 @@ class Documento(models.Model):
     )
 
     status_assinatura = models.PositiveSmallIntegerField(choices=STATUS_ASSINATURA, default=NAO_ASSINADO)
+
+    @property
+    def status_assinatura_verbose(self):
+        return dict(Documento.STATUS_ASSINATURA)[self.status_assinatura]
 
     def __str__(self):
         return 'pk: {}'.format(getattr(self, 'pk', None))

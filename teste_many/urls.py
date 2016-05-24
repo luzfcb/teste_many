@@ -19,7 +19,7 @@ from django.contrib import admin
 from core import views
 
 urlpatterns = [
-    url(r'^$', views.DocumentoListar.as_view()),
-    url(r'^editar/(?P<slug>[\w-]+)/$', views.DocumentoEditar.as_view()),
+    url(r'^$', views.DocumentoListar.as_view(), name='listar'),
+    url(r'^editar/(?P<slug>\b[0-9A-Fa-f]{8}\b(-\b[0-9A-Fa-f]{4}\b){3}-\b[0-9A-Fa-f]{12}\b)/$', views.DocumentoEditar.as_view(), name='editar'),
     url(r'^admin/', admin.site.urls),
 ]
