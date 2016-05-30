@@ -15,12 +15,8 @@ class AssinarDocumentoView(generic.FormView, generic.DetailView):
     template_name = 'core/documento_assinar.html'
     form_class = AssinarDocumentoForm
     model = Documento
-
+    slug_field = 'uuid_hash'
     success_url = reverse_lazy('documentos:list')
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super(AssinarDocumentoView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -57,67 +53,68 @@ class AssinarDocumentoView(generic.FormView, generic.DetailView):
         documento = self.object
 
         assinado_por = form.cleaned_data.get('assinado_por')
-
-        # cria ou obten instancia de Assinatura para o usuario selecionado em  assinado_por
-        obj, created = Assinatura.objects.get_or_create(documento=documento,
-                                                        assinado_por=assinado_por,
-                                                        versao_numero=documento.versao_numero,
-                                                        esta_ativo=True,
-                                                        defaults={
-                                                            'documento': documento,
-                                                            'assinado_por': assinado_por,
-                                                            'versao_numero': documento.versao_numero + 1,
-                                                            'esta_ativo': True
-                                                        }
-                                                        )
-        if created:
-            print("criado : {}".format(obj.assinado_por.username))
-        else:
-            print("obtido")
-
-        if not obj.esta_assinado:
-            obj.assinar_documento()
-
-        # cria assinatura
-        usuarios_assinantes = form.cleaned_data.get('incluir_assinantes')
-        for usuario_assinante in usuarios_assinantes:
-            # Assinatura.objects.get
-            obj, created = Assinatura.objects.get_or_create(documento=documento,
-                                                            assinado_por=usuario_assinante,
-                                                            versao_numero=documento.versao_numero,
-                                                            defaults={
-                                                                'documento': documento,
-                                                                'assinado_por': usuario_assinante,
-                                                                'versao_numero': documento.versao_numero + 1,
-                                                                'esta_assinado': False
-                                                            }
-                                                            )
-            if created:
-                print("criado : {}".format(obj.assinado_por.username))
-                # notificar usuario
-            else:
-                print("obtido")
-
-        # documento.assinar_documento(
-        #     assinado_por=form.cleaned_data.get('assinado_por'),
-        #     current_logged_user=form.current_logged_user
+        form.save()
+        # # cria ou obten instancia de Assinatura para o usuario selecionado em  assinado_por
+        # obj, created = Assinatura.objects.get_or_create(documento=documento,
+        #                                                 assinado_por=assinado_por,
+        #                                                 versao_numero=documento.versao_numero,
+        #                                                 esta_ativo=True,
+        #                                                 defaults={
+        #                                                     'documento': documento,
+        #                                                     'assinado_por': assinado_por,
+        #                                                     'versao_numero': documento.versao_numero + 1,
+        #                                                     'esta_ativo': True
+        #                                                 }
+        #                                                 )
+        # if created:
+        #     print("criado : {}".format(obj.assinado_por.username))
+        # else:
+        #     print("obtido")
+        #
+        # if not obj.esta_assinado:
+        #     obj.assinar_documento()
+        #
+        # # cria assinatura
+        # usuarios_assinantes = form.cleaned_data.get('incluir_assinantes')
+        # for usuario_assinante in usuarios_assinantes:
+        #     # Assinatura.objects.get
+        #     obj, created = Assinatura.objects.get_or_create(documento=documento,
+        #                                                     assinado_por=usuario_assinante,
+        #                                                     versao_numero=documento.versao_numero,
+        #                                                     defaults={
+        #                                                         'documento': documento,
+        #                                                         'assinado_por': usuario_assinante,
+        #                                                         'versao_numero': documento.versao_numero + 1,
+        #                                                         'esta_assinado': False
+        #                                                     }
+        #                                                     )
+        #     if created:
+        #         print("criado : {}".format(obj.assinado_por.username))
+        #         # notificar usuario
+        #     else:
+        #         print("obtido")
+        #
+        # # documento.assinar_documento(
+        # #     assinado_por=form.cleaned_data.get('assinado_por'),
+        # #     current_logged_user=form.current_logged_user
+        # # )
+        #
+        # print(form.cleaned_data.get('incluir_assinantes'))
+        # # return documento
+        # ###################################
+        # assinado_por = form.cleaned_data.get('assinado_por', None)
+        #
+        # msg = 'Documento n°{} assinado com sucesso por {}'.format(
+        #     self.object.identificador_versao,
+        #     assinado_por.get_full_name().title()
         # )
-
-        print(form.cleaned_data.get('incluir_assinantes'))
-        # return documento
-        ###################################
-        assinado_por = form.cleaned_data.get('assinado_por', None)
-
-        msg = 'Documento n°{} assinado com sucesso por {}'.format(
-            self.object.identificador_versao,
-            assinado_por.get_full_name().title()
-        )
-        messages.add_message(self.request, messages.INFO, msg)
+        # messages.add_message(self.request, messages.INFO, msg)
         return ret
 
     def get_success_url(self):
-        detail_url = reverse('documentos:validar-detail', kwargs={'pk': self.object.pk})
-        return detail_url
+        # detail_url = reverse('documentos:validar-detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('documentos:list')
+        # return detail_url
 
 
 class DocumentoEditar(generic.UpdateView):
@@ -125,6 +122,7 @@ class DocumentoEditar(generic.UpdateView):
     template_name = 'core/documento_assinar.html'
     fields = '__all__'
     slug_field = 'uuid_hash'
+    success_url = reverse_lazy('documentos:list')
 
 
 class DocumentoListar(generic.ListView):

@@ -5,85 +5,13 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 import autorepr
-
+from django.utils.functional import cached_property
+from . import managers
 __all__ = (
     'Assinatura',
     'AssinaturaBloco',
     'Documento'
 )
-
-
-class ActiveInactiveQuerySet(models.QuerySet):
-    def inativos(self):
-        return self.filter(esta_ativo=False)
-
-    def ativos(self):
-        return self.filter(esta_ativo=True)
-
-    def nao_assinados(self, assinante=None):
-        if assinante:
-            return self.ativos().filter(esta_assinado=False, assinado_por=assinante)
-        return self.ativos().filter(esta_assinado=False)
-
-    def assinados(self, assinante=None):
-        if assinante:
-            return self.ativos().filter(esta_assinado=True, assinado_por=assinante)
-        return self.ativos().filter(esta_assinado=True)
-
-
-class AssinaturaManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return ActiveInactiveQuerySet(model=self.model, using=self._db).ativos()
-
-    def inativos(self):
-        return ActiveInactiveQuerySet(model=self.model, using=self._db).inativos()
-
-    def ativos(self):
-        return self.get_queryset()
-
-    def nao_assinados(self, assinante=None):
-        return self.get_queryset().nao_assinados(assinante=assinante)
-
-    def assinados(self, assinante=None):
-        return self.get_queryset().assinados(assinante=assinante)
-
-
-class AssinaturaAdminManager(models.Manager):
-    def get_queryset(self):
-        return ActiveInactiveQuerySet(model=self.model, using=self._db)
-
-    def inativos(self):
-        return self.get_queryset().inativos()
-
-    def ativos(self):
-        return self.get_queryset().ativos()
-
-    def nao_assinados(self, assinante=None):
-        return self.get_queryset().nao_assinados(assinante=assinante)
-
-    def assinados(self, assinante=None):
-        return self.get_queryset().assinados(assinante=assinante)
-
-
-class AssinaturaBlocoManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_queryset(self):
-        return ActiveInactiveQuerySet(model=self.model, using=self._db)
-
-    def inativos(self):
-        return self.get_queryset().inativos()
-
-    def ativos(self):
-        return self.get_queryset().ativos()
-
-    def nao_assinados(self, assinante=None):
-        return self.get_queryset().nao_assinados(assinante=assinante)
-
-    def assinados(self, assinante=None):
-        return self.get_queryset().assinados(assinante=assinante)
 
 
 class Assinatura(models.Model):
@@ -105,7 +33,7 @@ class Assinatura(models.Model):
 
     esta_ativo = models.NullBooleanField(default=True, editable=False)
 
-    objects = AssinaturaManager()
+    objects = managers.AssinaturaManager()
 
     def __repr__(self):
         return 'Assinatura(id={}, assinatura_bloco={}, assinado_por={})'.format(self.pk, self.assinatura_bloco_id,
@@ -135,12 +63,28 @@ class AssinaturaBloco(models.Model):
 
     esta_ativo = models.NullBooleanField(default=True, editable=True)
 
-    objects = AssinaturaBlocoManager()
+    objects = managers.AssinaturaBlocoManager()
 
     def __str__(self):
         return 'pk: {}, documento: {}, assinantes: {}, datahora: {}'.format(getattr(self, 'pk', None),
                                                                             self.documento.pk, self.assinantes,
                                                                             self.datahora)
+
+    def adicionar_assinantes_ao_bloco(self, assinantes):
+        for assinante in assinantes:
+            self._nova_assinatura(assinante)
+
+    def _nova_assinatura(self, assinante):
+        if self.pk:
+            obj, created = self.assinantes.through.objects.get_or_create(assinatura_bloco=self,
+                                                                         assinado_por=assinante,
+                                                                         defaults={
+                                                                             'assinatura_bloco': self,
+                                                                             'assinado_por': assinante,
+                                                                         }
+                                                                         )
+            return obj, created
+        return None, False
 
     class Meta:
         ordering = ('documento',)
@@ -183,3 +127,11 @@ class Documento(models.Model):
         if not self.bloco_assinatura.count():
             assinatura_block = AssinaturaBloco(documento=self)
             assinatura_block.save()
+
+    def novo_bloco_assinatura(self, desativar_antigos=False) -> AssinaturaBloco:
+        assinatura_block = None
+        if desativar_antigos:
+            self.bloco_assinatura.update(esta_ativo=False)
+        if not self.bloco_assinatura.count():
+            assinatura_block = AssinaturaBloco.objects.create(documento=self)
+        return assinatura_block

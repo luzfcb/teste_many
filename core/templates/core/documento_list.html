@@ -19,7 +19,10 @@
                     <td>{{ object.pk }}</td>
                     <td>{{ object.uuid_hash }}</td>
                     <td>{{ object.status_assinatura_verbose }}</td>
-                    <td><a href="{% url "editar" slug=object.uuid_hash %}">editar</a></td>
+                    <td>
+                        <a href="{% url "documentos:editar" slug=object.uuid_hash %}">editar</a>
+                        <a href="{% url "documentos:assinar" slug=object.uuid_hash %}">assinar</a>
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
