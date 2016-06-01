@@ -119,7 +119,7 @@ class AssinarDocumentoView(generic.FormView, generic.DetailView):
 
 class DocumentoEditar(generic.UpdateView):
     model = Documento
-    template_name = 'core/documento_assinar.html'
+    template_name = 'core/documento_editar.html'
     fields = '__all__'
     slug_field = 'uuid_hash'
     success_url = reverse_lazy('documentos:list')

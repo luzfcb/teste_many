@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 import autorepr
 from django.utils.functional import cached_property
 from . import managers
+
 __all__ = (
     'Assinatura',
     'AssinaturaBloco',
@@ -31,6 +32,7 @@ class Assinatura(models.Model):
                                      # editable=False
                                      )
 
+    esta_assinado = models.BooleanField(default=False, editable=False)
     esta_ativo = models.NullBooleanField(default=True, editable=False)
 
     objects = managers.AssinaturaManager()
@@ -45,7 +47,7 @@ class Assinatura(models.Model):
 
 class AssinaturaBloco(models.Model):
     documento = models.ForeignKey(to='Documento',
-                                  related_name="bloco_assinatura",
+                                  related_name="_bloco_assinatura",
                                   null=True,
                                   blank=True,
                                   on_delete=models.SET_NULL,
@@ -67,12 +69,13 @@ class AssinaturaBloco(models.Model):
 
     def __str__(self):
         return 'pk: {}, documento: {}, assinantes: {}, datahora: {}'.format(getattr(self, 'pk', None),
-                                                                            self.documento.pk, self.assinantes,
+                                                                            self.documento_id,
+                                                                            self.assinantes.all(),
                                                                             self.datahora)
 
     def adicionar_assinantes_ao_bloco(self, assinantes):
         for assinante in assinantes:
-            self._nova_assinatura(assinante)
+            yield self._nova_assinatura(assinante)
 
     def _nova_assinatura(self, assinante):
         if self.pk:
@@ -118,20 +121,32 @@ class Documento(models.Model):
             self.uuid_hash = uuid.uuid4()
 
         super(Documento, self).save(*args, **kwargs)
-        if not self.bloco_assinatura.count():
-            assinatura_block = AssinaturaBloco(documento=self)
-            assinatura_block.save()
+        if not self._bloco_assinatura.exists():
+            self._novo_bloco_assinatura(desativar_antigos=True)
+            # assinatura_block = AssinaturaBloco(documento=self)
+            # assinatura_block.save()
             # super(Documento, self).save(*args, **kwargs)
 
     def remover_assinatura(self):
-        if not self.bloco_assinatura.count():
-            assinatura_block = AssinaturaBloco(documento=self)
-            assinatura_block.save()
+        return self._novo_bloco_assinatura(desativar_antigos=True)
 
-    def novo_bloco_assinatura(self, desativar_antigos=False) -> AssinaturaBloco:
+    def _novo_bloco_assinatura(self, desativar_antigos=False) -> AssinaturaBloco:
         assinatura_block = None
         if desativar_antigos:
-            self.bloco_assinatura.update(esta_ativo=False)
-        if not self.bloco_assinatura.count():
+            self._bloco_assinatura.update(esta_ativo=False)
+        if not self._bloco_assinatura.count():
             assinatura_block = AssinaturaBloco.objects.create(documento=self)
         return assinatura_block
+
+    def adicionar_assinantes(self, assinantes):
+        return self.bloco_assinatura.adicionar_assinantes_ao_bloco(assinantes)
+
+    @cached_property
+    def bloco_assinatura(self):
+        bloco = self._bloco_assinatura.filter(esta_ativo=True)
+        if bloco:
+            bloco = bloco.first()
+        return bloco or None
+
+    def assinaturas(self):
+        return self.bloco_assinatura.assinaturas.all()

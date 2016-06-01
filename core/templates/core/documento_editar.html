@@ -5,7 +5,19 @@
     {% if form %}
         <form action="{% url 'documentos:editar' slug=object.uuid_hash %}" method="post">
             {% csrf_token %}
-            {{ form }}
+            <fieldset>
+            <legend>Cadastro:</legend>
+                {% for form_field in form %}
+                    <div class="form-group">
+                        <label for="{{ form_field.id_for_label }}"
+                               class="col-sm-2 control-label">{{ form_field.label }}:</label>
+                        <div class="col-sm-10">
+                            {{ form_field }}
+                            {{ form_field.errors }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </fieldset>
             <input type="submit" value="Salvar">
         </form>
     {% endif %}
