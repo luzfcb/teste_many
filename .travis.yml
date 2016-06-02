@@ -5,4 +5,6 @@ language: python
 python:
   - "3.5"
 
-script: "which python3.6 2>&1 || { echo 'python3.6 Not available';}"
+script:
+  - "export aaa=`which python3.6`"
+  - "echo $aaa"
