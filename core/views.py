@@ -1,7 +1,7 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import transaction
+from django.shortcuts import redirect
 
 from django.utils.decorators import method_decorator
 from django.views import generic
@@ -123,6 +123,12 @@ class DocumentoEditar(generic.UpdateView):
     fields = '__all__'
     slug_field = 'uuid_hash'
     success_url = reverse_lazy('documentos:list')
+
+    def get(self, request, *args, **kwargs):
+        response = super(DocumentoEditar, self).get(request, *args, **kwargs)
+        if self.object.status_assinatura == Documento.ASSINADO:
+            response = redirect('documentos:list')
+        return response
 
 
 class DocumentoListar(generic.ListView):

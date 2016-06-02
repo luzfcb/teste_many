@@ -44,18 +44,19 @@ class DocumentoTestCase(TestCase):
 
     def setUp(self):
         self.documento = models.Documento.objects.create()
-        self.bloco_assinatura1 = self.documento.bloco_assinatura.first()
+        self.bloco_assinatura1 = self.documento.bloco_assinatura
         self.contador = User.objects.count()
         # self.assinantes = UserAdminFactory.create_batch(3)
 
-    def test_bloco_assinatura_em_documento(self):
-        self.assertEqual(self.documento.bloco_assinatura.all().count(), 1)
+    # def test_bloco_assinatura_em_documento(self):
+    #     self.assertEqual(self.documento.bloco_assinatura.all().count(), 1)
 
     def test_novo_bloco_em_documento(self):
 
         novo_bloco = self.documento._novo_bloco_assinatura(True)
         self.assertIsNot(self.bloco_assinatura1, novo_bloco)
-        self.assertIsNot(self.bloco_assinatura1, self.documento.bloco_assinatura.first())
+        self.assertIsNot(self.bloco_assinatura1, self.documento.bloco_assinatura)
 
     def test_adicionar_assinantes(self):
-        self.documento.adicionar_assinantes(self.assinantes)
+        assinantes = User.objects.all()[:5]
+        self.documento.adicionar_assinantes(assinantes)

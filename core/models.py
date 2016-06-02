@@ -4,7 +4,6 @@ import uuid
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-import autorepr
 from django.utils.functional import cached_property
 from . import managers
 
@@ -61,7 +60,7 @@ class AssinaturaBloco(models.Model):
                                         # editable=False,
                                         )
 
-    datahora = models.DateTimeField(default=timezone.now, editable=False)
+    criado_em = models.DateTimeField(default=timezone.now, editable=False)
 
     esta_ativo = models.NullBooleanField(default=True, editable=True)
 
@@ -94,11 +93,13 @@ class AssinaturaBloco(models.Model):
 
 
 class Documento(models.Model):
-    uuid_hash = models.UUIDField(editable=False, unique=True, null=True, db_index=True)
-
     NAO_ASSINADO = 10
     POSSUI_ASSINATURAS_PENDENTES = 20
     ASSINADO = 30
+
+    uuid_hash = models.UUIDField(editable=False, unique=True, null=True, db_index=True)
+    assinatura_hash = models.TextField(blank=True)
+    conteudo_documento = models.TextField(blank=True)
 
     STATUS_ASSINATURA = (
         (NAO_ASSINADO, 'Não Assinado'),
@@ -131,11 +132,10 @@ class Documento(models.Model):
         return self._novo_bloco_assinatura(desativar_antigos=True)
 
     def _novo_bloco_assinatura(self, desativar_antigos=False) -> AssinaturaBloco:
-        assinatura_block = None
         if desativar_antigos:
             self._bloco_assinatura.update(esta_ativo=False)
-        if not self._bloco_assinatura.count():
-            assinatura_block = AssinaturaBloco.objects.create(documento=self)
+
+        assinatura_block = AssinaturaBloco.objects.create(documento=self)
         return assinatura_block
 
     def adicionar_assinantes(self, assinantes):
