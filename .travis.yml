@@ -2,7 +2,7 @@
 
 os:
   - linux
-  - osx
+#  - osx
 
 sudo: false
 language: python
