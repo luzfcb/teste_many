@@ -8,9 +8,9 @@ language: python
 #    - $HOME/.cache/pip
 #before_cache:
 #  - rm -f $HOME/.cache/pip/log/debug.log
-python:
-  - "3.5"
-  - "nightly"
+#python:
+#  - "3.5"
+#  - "nightly"
 
 
 #env:
@@ -26,13 +26,13 @@ matrix:
         env: TOX_ENV=py35
       - python: nightly
         env: TOX_ENV=py36
-    exclude:
-      - python: nightly
-        env: TOX_ENV=py34
-      - python: nightly
-        env: TOX_ENV=py35
-      - python: 3.5
-        env: TOX_ENV=py36
+#    exclude:
+#      - python: nightly
+#        env: TOX_ENV=py34
+#      - python: nightly
+#        env: TOX_ENV=py35
+#      - python: 3.5
+#        env: TOX_ENV=py36
 
 before_script:
   - "export aaa=`which python3.6`"
