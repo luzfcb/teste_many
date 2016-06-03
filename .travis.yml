@@ -1,5 +1,9 @@
 # Config file for automatic testing at travis-ci.org
 
+os:
+  - linux
+  - osx
+
 sudo: false
 language: python
 # https://docs.travis-ci.com/user/caching/#before_cache-phase
@@ -26,6 +30,9 @@ matrix:
         env: TOX_ENV=py36
       - python: pypy
         env: TOX_ENV=pypy
+    allow_failures:
+      - python: nightly
+        env: TOX_ENV=py36
 
 before_script:
   - "export aaa=`which python3.6`"
