@@ -2,10 +2,36 @@
 
 sudo: false
 language: python
+# https://docs.travis-ci.com/user/caching/#before_cache-phase
+#cache:
+#  directories:
+#    - $HOME/.cache/pip
+#before_cache:
+#  - rm -f $HOME/.cache/pip/log/debug.log
 python:
   - "3.5"
+  - "nightly"
+
+
+env:
+  matrix:
+    - TOX_ENV=py34
+    - TOX_ENV=py35
+    - TOX_ENV=py36
+#    exclude:
+#      - python: 3.5
+#        env:
+#          - TOX_ENV=py34
+
+matrix:
+    exclude:
+      - python: 3.5
+        env:
+          - TOX_ENV=py36
+
+
 
 script:
   - "export aaa=`which python3.6`"
   - "echo $aaa"
-  - python3.6 "import sys; print(sys.version)"
+  - python3.6 -c "import sys; print(sys.version)"
