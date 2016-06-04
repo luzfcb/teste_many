@@ -1,4 +1,4 @@
-# teste_many
+# Documento
 
 ### Objetivo de longo prazo:
 
@@ -6,7 +6,11 @@ Substituir o uso do MS Word, e facilitar a analise conteudo do documento por sis
 
 ### Objetivo de curto prazo:
 
-Implementar em `Documento` a capacidade de suportar multiplos `User`'s diferentes possam assinar o mesmo documento e garantir a sua autenticidade
+Projetar a app de forma plugavel e fornecer meios de um usuario da app integra-lo, mas não ter que modificar nada ou quase nada na logica de edição
+Implementar versionamento de `Documento`.
+Implementar em `Documento` a capacidade de suportar multiplos `User`'s diferentes possam assinar o mesmo documento e garantir a sua autenticidade.
+Implementar pagina para validação de um documento
+Implementar conversão do documento do formato de entrata (HTML) para PDF e incluir código validador da assinatura e código QR apontando para a pagina de validacao
 
 
 

@@ -37,7 +37,8 @@ class Assinatura(models.Model):
     objects = managers.AssinaturaManager()
 
     def __repr__(self):
-        return 'Assinatura(id={}, assinatura_bloco={}, assinado_por={})'.format(self.pk, self.assinatura_bloco_id,
+        return 'Assinatura(id={}, assinatura_bloco={}, assinado_por={})'.format(self.pk,
+                                                                                self.assinatura_bloco_id,
                                                                                 self.assinado_por_id)
 
     def __str__(self):
