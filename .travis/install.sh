@@ -8,7 +8,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     eval "$(pyenv init -)";
     pyenv install python3.5
     pyenv global python3.5
-    pip install -r requirements.txt
+
     #case "${TOXENV}" in
     #    py32)
     #
@@ -21,3 +21,5 @@ else
    echo ""
     # Install some custom requirements on Linux
 fi
+
+pip install -r requirements.txt
