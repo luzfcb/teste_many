@@ -6,8 +6,8 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     # e.g. brew install pyenv-virtualenv
     brew install pyenv-virtualenv;
     eval "$(pyenv init -)";
-    pyenv install python3.5
-    pyenv global python3.5
+    pyenv install 3.5
+    pyenv global 3.5
 
     #case "${TOXENV}" in
     #    py32)
