@@ -18,5 +18,6 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     #        ;;
     #esac
 else
+   echo ""
     # Install some custom requirements on Linux
 fi
