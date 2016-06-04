@@ -43,12 +43,11 @@ matrix:
         env: TOX_ENV=py36
 
 before_script:
-  - "export aaa=`which python3.6`"
-  - "echo $aaa"
-  - python -c "import sys; print(sys.version)"
   - "echo 'available python:'"
+  - python -c "import sys; print(sys.version)"
   - "whereis python"
-
+install:
+    - ./.travis/install.sh
 script:
   - "export aaa=`which python3.6`"
   - "echo $aaa"
