@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import uuid
 from django.db import models, transaction
+from django.contrib.postgres import fields as pgfields
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
@@ -68,10 +69,10 @@ class AssinaturaBloco(models.Model):
     objects = managers.AssinaturaBlocoManager()
 
     def __str__(self):
-        return 'pk: {}, documento: {}, assinantes: {}, datahora: {}'.format(getattr(self, 'pk', None),
+        return 'pk: {}, documento: {}, assinantes: {}, criadoem: {}'.format(getattr(self, 'pk', None),
                                                                             self.documento_id,
                                                                             self.assinantes.all(),
-                                                                            self.datahora)
+                                                                            self.criado_em)
 
     def adicionar_assinantes_ao_bloco(self, assinantes):
         for assinante in assinantes:
